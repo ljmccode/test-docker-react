@@ -1,0 +1,41 @@
+pipeline:
+  name: testECRconnection
+  identifier: testECRconnection
+  projectIdentifier: Mars
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: lauratestgithub
+        repoName: test-docker-react
+        build: <+input>
+  stages:
+    - stage:
+        name: build
+        identifier: build
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ekscluster
+              namespace: build
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: BuildAndPushECR
+                  name: BuildAndPushECR_1
+                  identifier: BuildAndPushECR_1
+                  spec:
+                    connectorRef: marsaws
+                    region: us-east-1
+                    account: "642075155975"
+                    imageName: react-rover
+                    tags:
+                      - <+trigger.sourceBranch>
